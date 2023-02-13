@@ -1,4 +1,4 @@
-from gramformer import Gramformer
+from controllers.gramformer import Gramformer
 
 import torch
 
@@ -26,6 +26,7 @@ influent_sentences = [
 for influent_sentence in influent_sentences:
     corrected_sentences = gf.correct(influent_sentence, max_candidates=1)
     print("[Input] ", influent_sentence)
+    print(corrected_sentences)
     for corrected_sentence in corrected_sentences:
       print("[Correction] ",corrected_sentence)
     print("-" *100)

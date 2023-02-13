@@ -47,11 +47,6 @@ class Gramformer:
         corrected = set()
         for pred in preds:  
           corrected.add(self.correction_tokenizer.decode(pred, skip_special_tokens=True).strip())
-
-        #corrected = list(corrected)
-        #scores = self.scorer.sentence_score(corrected, log=True)
-        #ranked_corrected = [(c,s) for c, s in zip(corrected, scores)]
-        #ranked_corrected.sort(key = lambda x:x[1], reverse=True)
         return corrected
       else:
         print("Model is not loaded")  
