@@ -1,9 +1,6 @@
 class Gramformer:
-
   def __init__(self, models=1, use_gpu=False):
-    from transformers import AutoTokenizer
-    from transformers import AutoModelForSeq2SeqLM
-    #from lm_scorer.models.auto import AutoLMScorer as LMScorer
+    from transformers import T5Tokenizer, T5ForConditionalGeneration
     import errant
     self.annotator = errant.load('en')
     
@@ -12,20 +9,17 @@ class Gramformer:
     else:
         device = "cpu"
     batch_size = 1    
-    #self.scorer = LMScorer.from_pretrained("gpt2", device=device, batch_size=batch_size)    
     self.device    = device
-    correction_model_tag = "prithivida/grammar_error_correcter_v1"
+  
     self.model_loaded = False
 
     if models == 1:
-        self.correction_tokenizer = AutoTokenizer.from_pretrained(correction_model_tag, use_auth_token=False)
-        self.correction_model     = AutoModelForSeq2SeqLM.from_pretrained(correction_model_tag, use_auth_token=False)
+        # Load the T5 tokenizer and model
+        self.correction_tokenizer = T5Tokenizer.from_pretrained('C:\\Users\\santh\\Downloads\\t5_gec_model\\t5_gec_model')
+        self.correction_model = T5ForConditionalGeneration.from_pretrained('C:\\Users\\santh\\Downloads\\t5_gec_model\\t5_gec_model')
         self.correction_model     = self.correction_model.to(device)
         self.model_loaded = True
-        print("[Gramformer] Grammar error correct/highlight model loaded..")
-    elif models == 2:
-        # TODO
-        print("TO BE IMPLEMENTED!!!")
+        print("[Fluentify] Grammar error correct/Edits loaded..")
 
   def correct(self, input_sentence, max_candidates=1):
       if self.model_loaded:
@@ -52,53 +46,6 @@ class Gramformer:
         print("Model is not loaded")  
         return None
 
-  def highlight(self, orig, cor):
-      edits = self._get_edits(orig, cor)
-      orig_tokens = orig.split()
-
-      ignore_indexes = []
-
-      for edit in edits:
-          edit_type = edit[0]
-          edit_str_start = edit[1]
-          edit_spos = edit[2]
-          edit_epos = edit[3]
-          edit_str_end = edit[4]
-
-          # if no_of_tokens(edit_str_start) > 1 ==> excluding the first token, mark all other tokens for deletion
-          for i in range(edit_spos+1, edit_epos):
-            ignore_indexes.append(i)
-
-          if edit_str_start == "":
-              if edit_spos - 1 >= 0:
-                  new_edit_str = orig_tokens[edit_spos - 1]
-                  edit_spos -= 1
-              else:
-                  new_edit_str = orig_tokens[edit_spos + 1]
-                  edit_spos += 1
-              if edit_type == "PUNCT":
-                st = "<a type='" + edit_type + "' edit='" + \
-                    edit_str_end + "'>" + new_edit_str + "</a>"
-              else:
-                st = "<a type='" + edit_type + "' edit='" + new_edit_str + \
-                    " " + edit_str_end + "'>" + new_edit_str + "</a>"
-              orig_tokens[edit_spos] = st
-          elif edit_str_end == "":
-            st = "<d type='" + edit_type + "' edit=''>" + edit_str_start + "</d>"
-            orig_tokens[edit_spos] = st
-          else:
-            st = "<c type='" + edit_type + "' edit='" + \
-                edit_str_end + "'>" + edit_str_start + "</c>"
-            orig_tokens[edit_spos] = st
-
-      for i in sorted(ignore_indexes, reverse=True):
-        del(orig_tokens[i])
-
-      return(" ".join(orig_tokens))
-
-  def detect(self, input_sentence):
-        # TO BE IMPLEMENTED
-        pass
 
   def _get_edits(self, orig, cor):
         orig = self.annotator.parse(orig)

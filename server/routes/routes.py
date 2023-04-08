@@ -1,7 +1,6 @@
 
-from controllers.gramformer import Gramformer
-
+from controllers.Correction import Correction
 
 def grammar_correction_routes(api):
-    api.add_resource(Gramformer,"/api/grammarcorrection")
+    api.add_resource(Correction,"/api/correction");
 

@@ -1,33 +1,23 @@
-import React from 'react';
-import useSpeechToText from 'react-hook-speech-to-text';
-
-export default function App() {
-  const {
-    error,
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
-    continuous: true,
-    useLegacyResults: false
-  });
-
-  if (error) return <p>Web Speech API is not available in this browser 🤷‍</p>;
-
+import React from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Home from './Screens/Home';
+import Voice from './Screens/Voice';
+import Text from "./Screens/Text";
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import "./index.css"
+const App = () => {
   return (
-    <div>
-      <h1>Recording: {isRecording.toString()}</h1>
-      <button onClick={isRecording ? stopSpeechToText : startSpeechToText}>
-        {isRecording ? 'Stop Recording' : 'Start Recording'}
-      </button>
-      <ul>
-        {results.map((result) => (
-          <p key={result.timestamp}>{result.transcript}</p>
-        ))}
-        {interimResult && <li>{interimResult}</li>}
-      </ul>
-    </div>
-  );
+    <BrowserRouter>
+    <Navbar />
+     <Routes>
+       <Route path="/" element={<Home />} />
+       <Route path="/voice" element={<Voice />} />
+       <Route path="/text" element={<Text />} />
+     </Routes>
+     <Footer />
+    </BrowserRouter>
+  )
 }
+
+export default App

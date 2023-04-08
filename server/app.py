@@ -1,32 +1,13 @@
-from controllers.gramformer import Gramformer
+from flask import Flask
+from flask_restful import Api
+from routes.routes import grammar_correction_routes
+from flask_cors import CORS, cross_origin
 
-import torch
+app = Flask(__name__)
+CORS(app)
 
-def set_seed(seed):
-  torch.manual_seed(seed)
-  if torch.cuda.is_available():
-    torch.cuda.manual_seed_all(seed)
+api = Api(app)
+grammar_correction_routes(api)
 
-set_seed(1212)
-
-
-gf = Gramformer(models = 1, use_gpu=False) # 1=corrector, 2=detector
-
-influent_sentences = [
-    "Matt like fish",
-    "the collection of letters was original used by the ancient Romans",
-    "We enjoys horror movies",
-    "Anna and Mike is going skiing",
-    "I walk to the store and I bought milk",
-    "We all eat the fish and then made dessert",
-    "I will eat fish for dinner and drank milk",
-    "what be the reason for everyone leave the company",
-]   
-
-for influent_sentence in influent_sentences:
-    corrected_sentences = gf.correct(influent_sentence, max_candidates=1)
-    print("[Input] ", influent_sentence)
-    print(corrected_sentences)
-    for corrected_sentence in corrected_sentences:
-      print("[Correction] ",corrected_sentence)
-    print("-" *100)
+if __name__=="__main__":
+    app.run(debug=True)
